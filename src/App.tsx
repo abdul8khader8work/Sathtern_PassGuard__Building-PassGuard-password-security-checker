@@ -13,8 +13,11 @@ function App() {
     isVisible,
     setIsVisible,
     result,
-    breachStatus,
+    analysisState,
+    breach,
     onClear,
+    tryExample,
+    handlePaste,
   } = usePasswordAnalysis();
 
   const checkerProps = {
@@ -24,7 +27,10 @@ function App() {
     setIsVisible,
     onClear,
     result,
-    breachStatus,
+    analysisState,
+    breach,
+    tryExample,
+    handlePaste,
   };
 
   return (
