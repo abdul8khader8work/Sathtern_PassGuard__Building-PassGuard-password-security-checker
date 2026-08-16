@@ -170,7 +170,9 @@ export function usePasswordAnalysis() {
 
   return {
     password,
+    setPassword,
     isVisible,
+    setIsVisible,
     analysisState,
     result,
     breach,

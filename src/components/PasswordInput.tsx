@@ -1,89 +1,64 @@
-import { Eye, EyeOff, X, RefreshCw } from "lucide-react";
-import { MAX_PASSWORD_LENGTH } from "../lib/constants";
-import { INPUT_CLASS, LABEL_CLASS, HELPER_TEXT_CLASS, ICON_BUTTON_CLASS, BUTTON_SECONDARY_CLASS, TRANSITION_CLASS } from "../lib/constants";
+import { useRef, forwardRef, type ChangeEvent } from 'react';
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Eye, EyeOff, X } from "lucide-react";
 
 interface PasswordInputProps {
   password: string;
+  setPassword: (val: string) => void;
   isVisible: boolean;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
-  toggleVisibility: () => void;
-  clearPassword: () => void;
-  tryExample: () => void;
-  disabled?: boolean;
+  setIsVisible: (val: boolean) => void;
+  onClear: () => void;
 }
 
-export function PasswordInput({
-  password,
-  isVisible,
-  onChange,
-  onPaste,
-  toggleVisibility,
-  clearPassword,
-  tryExample,
-  disabled = false,
-}: PasswordInputProps) {
-  return (
-    <div className="space-y-3">
-      <label htmlFor="password-input" className={LABEL_CLASS}>
-        Enter a password to test
-      </label>
-      <div className="relative">
-        <input
-          id="password-input"
+// MUST be forwardRef or standard function, NEVER defined inside another component
+export const PasswordInput = forwardRef<HTMLInputElement, PasswordInputProps>(
+  ({ password, setPassword, isVisible, setIsVisible, onClear }, ref) => {
+    const internalRef = useRef<HTMLInputElement>(null);
+    const inputRef = (ref as React.RefObject<HTMLInputElement>) || internalRef;
+
+    return (
+      <div className="relative flex items-center">
+        <Input
+          ref={inputRef}
           type={isVisible ? "text" : "password"}
           value={password}
-          onChange={onChange}
-          onPaste={onPaste}
-          maxLength={MAX_PASSWORD_LENGTH}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setPassword(e.target.value)}
+          maxLength={256}
           autoComplete="new-password"
           autoCapitalize="off"
           autoCorrect="off"
           spellCheck={false}
           aria-label="Password to check"
-          aria-describedby="password-help"
-          disabled={disabled}
-          className={`${INPUT_CLASS} pr-32`}
-          placeholder="Type or paste a password"
+          className="pr-20 text-lg h-14"
         />
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1">
+        <div className="absolute right-2 flex items-center gap-1">
           {password && (
-            <button
+            <Button
               type="button"
-              onClick={clearPassword}
-              className={ICON_BUTTON_CLASS}
+              variant="ghost"
+              size="icon"
+              onClick={onClear}
               aria-label="Clear password"
-              disabled={disabled}
+              className="h-8 w-8"
             >
-              <X className="w-5 h-5" aria-hidden="true" />
-            </button>
+              <X className="h-4 w-4" />
+            </Button>
           )}
-          <button
+          <Button
             type="button"
-            onClick={toggleVisibility}
-            className={ICON_BUTTON_CLASS}
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsVisible(!isVisible)}
             aria-label={isVisible ? "Hide password" : "Show password"}
             aria-pressed={isVisible}
-            disabled={disabled}
+            className="h-8 w-8"
           >
-            {isVisible ? <EyeOff className="w-5 h-5" aria-hidden="true" /> : <Eye className="w-5 h-5" aria-hidden="true" />}
-          </button>
+            {isVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </Button>
         </div>
       </div>
-      <div className="flex items-center gap-2">
-        <p id="password-help" className={HELPER_TEXT_CLASS}>
-          For safety, don&apos;t enter a password you actually use.
-        </p>
-        <button
-          type="button"
-          onClick={tryExample}
-          className={`${BUTTON_SECONDARY_CLASS} ${TRANSITION_CLASS} text-sm px-3 py-1.5`}
-          disabled={disabled}
-        >
-          <RefreshCw className="w-4 h-4 mr-1.5" aria-hidden="true" />
-          Try an example
-        </button>
-      </div>
-    </div>
-  );
-}
+    );
+  }
+);
+PasswordInput.displayName = "PasswordInput";

@@ -9,28 +9,24 @@ import { MobileTabs } from "./components/MobileTabs";
 function App() {
   const {
     password,
+    setPassword,
     isVisible,
+    setIsVisible,
     analysisState,
     result,
     breach,
-    handleChange,
-    handlePaste,
-    toggleVisibility,
     clearPassword,
-    tryExample,
   } = usePasswordAnalysis();
 
   const checkerProps = {
     password,
+    setPassword,
     isVisible,
+    setIsVisible,
+    onClear: clearPassword,
     analysisState,
     result,
     breach,
-    onChange: handleChange,
-    onPaste: handlePaste,
-    toggleVisibility,
-    clearPassword,
-    tryExample,
   };
 
   return (

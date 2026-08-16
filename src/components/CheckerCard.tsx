@@ -8,28 +8,24 @@ import type { AnalysisResult, BreachResult } from "../lib/types";
 
 interface CheckerCardProps {
   password: string;
+  setPassword: (val: string) => void;
   isVisible: boolean;
+  setIsVisible: (val: boolean) => void;
+  onClear: () => void;
   analysisState: "idle" | "typing" | "analyzing" | "ready" | "error";
   result: AnalysisResult | null;
   breach: BreachResult;
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  onPaste: (e: React.ClipboardEvent<HTMLInputElement>) => void;
-  toggleVisibility: () => void;
-  clearPassword: () => void;
-  tryExample: () => void;
 }
 
 export function CheckerCard({
   password,
+  setPassword,
   isVisible,
+  setIsVisible,
+  onClear,
   analysisState,
   result,
   breach,
-  onChange,
-  onPaste,
-  toggleVisibility,
-  clearPassword,
-  tryExample,
 }: CheckerCardProps) {
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
 
@@ -44,13 +40,10 @@ export function CheckerCard({
 
       <PasswordInput
         password={password}
+        setPassword={setPassword}
         isVisible={isVisible}
-        onChange={onChange}
-        onPaste={onPaste}
-        toggleVisibility={toggleVisibility}
-        clearPassword={clearPassword}
-        tryExample={tryExample}
-        disabled={analysisState === "analyzing"}
+        setIsVisible={setIsVisible}
+        onClear={onClear}
       />
 
       <div className="mt-6 pt-6 border-t border-gray-100 space-y-4">

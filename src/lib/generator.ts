@@ -15,15 +15,22 @@ const UPPERCASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 const NUMBERS = "0123456789";
 const SYMBOLS = "!@#$%^&*()-_=+[]{};:,.<>?";
 
-function getRandomValues(count: number): Uint32Array {
-  const array = new Uint32Array(count);
-  crypto.getRandomValues(array);
+function getRandomValues(array: Uint32Array): Uint32Array {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    crypto.getRandomValues(array as unknown as ArrayBufferView<ArrayBuffer>);
+    return array;
+  }
+  // Fallback for non-secure contexts (less secure, but prevents app crash)
+  for (let i = 0; i < array.length; i++) {
+    array[i] = Math.floor(Math.random() * 4294967296);
+  }
   return array;
 }
 
 function shuffleArray<T>(array: T[]): T[] {
   const result = [...array];
-  const randomValues = getRandomValues(result.length);
+  const randomValues = new Uint32Array(result.length);
+  getRandomValues(randomValues);
   for (let i = result.length - 1; i > 0; i--) {
     const j = randomValues[i] % (i + 1);
     [result[i], result[j]] = [result[j], result[i]];
@@ -37,25 +44,26 @@ export function generateRandomPassword(options: RandomPasswordOptions): string {
   let charset = LOWERCASE;
   const requiredChars: string[] = [];
 
-  requiredChars.push(LOWERCASE[getRandomValues(1)[0] % LOWERCASE.length]);
+  requiredChars.push(LOWERCASE[getRandomValues(new Uint32Array(1))[0] % LOWERCASE.length]);
 
   if (options.uppercase) {
     charset += UPPERCASE;
-    requiredChars.push(UPPERCASE[getRandomValues(1)[0] % UPPERCASE.length]);
+    requiredChars.push(UPPERCASE[getRandomValues(new Uint32Array(1))[0] % UPPERCASE.length]);
   }
 
   if (options.numbers) {
     charset += NUMBERS;
-    requiredChars.push(NUMBERS[getRandomValues(1)[0] % NUMBERS.length]);
+    requiredChars.push(NUMBERS[getRandomValues(new Uint32Array(1))[0] % NUMBERS.length]);
   }
 
   if (options.symbols) {
     charset += SYMBOLS;
-    requiredChars.push(SYMBOLS[getRandomValues(1)[0] % SYMBOLS.length]);
+    requiredChars.push(SYMBOLS[getRandomValues(new Uint32Array(1))[0] % SYMBOLS.length]);
   }
 
   const remainingLength = length - requiredChars.length;
-  const randomValues = getRandomValues(remainingLength);
+  const randomValues = new Uint32Array(remainingLength);
+  getRandomValues(randomValues);
   const randomChars = Array.from({ length: remainingLength }, (_, i) =>
     charset[randomValues[i] % charset.length]
   );
@@ -75,7 +83,8 @@ export function generatePassphrase(wordCount: number): string {
     throw new Error("Wordlist must contain at least 2048 words");
   }
 
-  const randomValues = getRandomValues(count);
+  const randomValues = new Uint32Array(count);
+  getRandomValues(randomValues);
   const selectedWords = Array.from(randomValues).map((val) => PASSPHRASE_WORDS[val % PASSPHRASE_WORDS.length]);
 
   return selectedWords.join(PASSPHRASE_SEPARATOR);
