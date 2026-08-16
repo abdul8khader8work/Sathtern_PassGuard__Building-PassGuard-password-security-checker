@@ -12,10 +12,9 @@ function App() {
     setPassword,
     isVisible,
     setIsVisible,
-    analysisState,
     result,
-    breach,
-    clearPassword,
+    breachStatus,
+    onClear,
   } = usePasswordAnalysis();
 
   const checkerProps = {
@@ -23,10 +22,9 @@ function App() {
     setPassword,
     isVisible,
     setIsVisible,
-    onClear: clearPassword,
-    analysisState,
+    onClear,
     result,
-    breach,
+    breachStatus,
   };
 
   return (

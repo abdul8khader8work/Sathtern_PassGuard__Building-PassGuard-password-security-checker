@@ -4,7 +4,7 @@ import { StrengthMeter } from "./StrengthMeter";
 import { ResultSummary } from "./ResultSummary";
 import { DetailedBreakdown } from "./DetailedBreakdown";
 import { CARD_CLASS } from "../lib/constants";
-import type { AnalysisResult, BreachResult } from "../lib/types";
+import type { AnalysisResult, BreachStatus } from "../lib/types";
 
 interface CheckerCardProps {
   password: string;
@@ -12,9 +12,8 @@ interface CheckerCardProps {
   isVisible: boolean;
   setIsVisible: (val: boolean) => void;
   onClear: () => void;
-  analysisState: "idle" | "typing" | "analyzing" | "ready" | "error";
   result: AnalysisResult | null;
-  breach: BreachResult;
+  breachStatus: BreachStatus;
 }
 
 export function CheckerCard({
@@ -23,14 +22,16 @@ export function CheckerCard({
   isVisible,
   setIsVisible,
   onClear,
-  analysisState,
   result,
-  breach,
+  breachStatus,
 }: CheckerCardProps) {
   const [isBreakdownOpen, setIsBreakdownOpen] = useState(false);
 
   const score = result?.score ?? null;
   const label = result?.label ?? "—";
+  
+  // Derive analysis state from result and breachStatus
+  const analysisState = result ? "ready" : (password ? "analyzing" : "idle");
 
   return (
     <section className={CARD_CLASS} aria-labelledby="checker-heading">
@@ -51,7 +52,7 @@ export function CheckerCard({
         <ResultSummary result={result} analysisState={analysisState} />
         <DetailedBreakdown
           result={result}
-          breach={breach}
+          breach={{ status: breachStatus, message: getBreachMessage(breachStatus) }}
           passwordLength={password.length}
           isOpen={isBreakdownOpen}
           onToggle={() => setIsBreakdownOpen((prev) => !prev)}
@@ -59,4 +60,21 @@ export function CheckerCard({
       </div>
     </section>
   );
+}
+
+function getBreachMessage(status: BreachStatus): string {
+  switch (status) {
+    case 'idle':
+      return "Breach lookup will run after you type.";
+    case 'checking':
+      return "Checking hash prefix against breach database...";
+    case 'safe':
+      return "No match found in the checked breach dataset.";
+    case 'breached':
+      return "This password appears in known data breaches. Do not use it.";
+    case 'error':
+      return "Breach lookup unavailable. Try again later.";
+    default:
+      return "Breach lookup will run after you type.";
+  }
 }
