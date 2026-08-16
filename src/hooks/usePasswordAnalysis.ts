@@ -86,6 +86,10 @@ export function usePasswordAnalysis() {
         const res = await checkBreach(password);
         if (breachRequestIdRef.current !== requestId) return;
         setBreach(res);
+        // Update the breach status in the analysis result
+        if (result) {
+          setResult(prev => prev ? { ...prev, checks: { ...prev.checks, breached: res.status === 'breached' } } : null);
+        }
       } catch {
         if (breachRequestIdRef.current !== requestId) return;
         setBreach({ status: 'error', message: 'Breach lookup unavailable. Try again later.' });

@@ -46,6 +46,14 @@ function createEmptyResult(): AnalysisResult {
     issues: [],
     suggestions: [],
     checks: {
+      // Blueprint required keys
+      length: false,
+      commonPassword: false,
+      repeatedChars: false,
+      sequence: false,
+      dictionaryWord: false,
+      breached: false,
+      // Detailed keys for UI checklist
       lengthAtLeast12: false,
       lengthAtLeast16: false,
       hasLowercase: false,
@@ -61,24 +69,38 @@ function createEmptyResult(): AnalysisResult {
 }
 
 function computeChecks(password: string, result: zxcvbn.ZXCVBNResult): PasswordChecks {
+  const length = password.length >= 12;
+  const commonPassword = result.sequence.some(
+    (match) =>
+      match.pattern === "dictionary" &&
+      "dictionaryName" in match &&
+      match.dictionaryName === "passwords"
+  );
+  const containsDictionaryWord = result.sequence.some((match) => match.pattern === "dictionary");
+  const hasRepeatedChars = result.sequence.some((match) => match.pattern === "repeat");
+  const hasSequence = result.sequence.some(
+    (match) => match.pattern === "sequence" || match.pattern === "spatial"
+  );
+
   return {
-    lengthAtLeast12: password.length >= 12,
+    // Blueprint required keys
+    length,
+    commonPassword,
+    repeatedChars: hasRepeatedChars,
+    sequence: hasSequence,
+    dictionaryWord: containsDictionaryWord,
+    breached: false, // Updated by hook after breach check
+    // Detailed keys for UI checklist
+    lengthAtLeast12: length,
     lengthAtLeast16: password.length >= 16,
     hasLowercase: /[a-z]/.test(password),
     hasUppercase: /[A-Z]/.test(password),
     hasNumber: /[0-9]/.test(password),
     hasSymbol: /[^A-Za-z0-9]/.test(password),
-    isCommonPassword: result.sequence.some(
-      (match) =>
-        match.pattern === "dictionary" &&
-        "dictionaryName" in match &&
-        match.dictionaryName === "passwords"
-    ),
-    containsDictionaryWord: result.sequence.some((match) => match.pattern === "dictionary"),
-    hasRepeatedChars: result.sequence.some((match) => match.pattern === "repeat"),
-    hasSequence: result.sequence.some(
-      (match) => match.pattern === "sequence" || match.pattern === "spatial"
-    ),
+    isCommonPassword: commonPassword,
+    hasRepeatedChars,
+    hasSequence,
+    containsDictionaryWord,
   };
 }
 

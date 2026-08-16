@@ -8,6 +8,15 @@ export type BreachStatus =
   | "error";
 
 export interface PasswordChecks {
+  // Original blueprint required keys:
+  length: boolean;           // true if length >= 12
+  commonPassword: boolean;   // true if in common passwords list
+  repeatedChars: boolean;    // true if has repeated chars
+  sequence: boolean;         // true if has sequence/spatial pattern
+  dictionaryWord: boolean;   // true if contains dictionary word
+  breached: boolean;         // true if found in HIBP (updated by hook)
+
+  // Keep your detailed keys for the UI checklist:
   lengthAtLeast12: boolean;
   lengthAtLeast16: boolean;
   hasLowercase: boolean;
