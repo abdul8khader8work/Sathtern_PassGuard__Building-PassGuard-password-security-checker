@@ -24,7 +24,7 @@ export const PASSPHRASE_DEFAULT_WORDS = 5;
 
 export const PASSPHRASE_SEPARATOR = "-";
 
-export const GITHUB_URL = "https://github.com";
+export const GITHUB_URL = "https://github.com/abdul8khader8work/Sathtern_PassGuard__Building-PassGuard-password-security-checker";
 
 export const SCORE_LABELS = [
   "Very Weak",
